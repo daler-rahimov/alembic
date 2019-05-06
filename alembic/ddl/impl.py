@@ -227,6 +227,9 @@ class DefaultImpl(with_metaclass(ImplMeta)):
             )
 
     def add_column(self, table_name, column, schema=None):
+        import sys
+        print("table_name = {}".format(table_name), file=sys.stderr)
+        print("column = {}".format(column), file=sys.stderr)
         self._exec(base.AddColumn(table_name, column, schema=schema))
 
     def drop_column(self, table_name, column, schema=None, **kw):

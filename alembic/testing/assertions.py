@@ -101,9 +101,18 @@ def _get_dialect(name):
         try:
             dialect_mod = _dialect_mods[name]
         except KeyError:
-            dialect_mod = getattr(
-                __import__("sqlalchemy.dialects.%s" % name).dialects, name
-            )
+            if name == "informix":
+                import sqlalchemy_informix.ibmdb
+                dialect_mod = sqlalchemy_informix.ibmdb
+            else:
+                dialect_mod = getattr(
+                    __import__("sqlalchemy.dialects.%s" % name).dialects, name
+                )
+            # if name == "mysql":
+            #     f = open("tmp.txt", "w+")
+            #     f.write("DALER'S NOT = {}".format(dialect_mod))
+            #     f.close()
+
             _dialect_mods[name] = dialect_mod
         d = dialect_mod.dialect()
         if name == "postgresql":

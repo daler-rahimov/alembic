@@ -1,3 +1,4 @@
+from . import informix  # noqa
 from . import mssql  # noqa
 from . import mysql  # noqa
 from . import oracle  # noqa
