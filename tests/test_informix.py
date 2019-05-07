@@ -26,6 +26,7 @@ class OpTest(TestBase):
 
     def test_add_column_with_default(self):
         context = op_fixture("informix")
+        import pdb; pdb.set_trace()
         op.add_column(
             "t1", Column("c1", Integer, nullable=False, server_default="12")
         )
