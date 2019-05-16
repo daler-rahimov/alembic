@@ -26,57 +26,63 @@ class OpTest(TestBase):
 
     def test_add_column_with_default(self):
         context = op_fixture("informix")
-        import pdb; pdb.set_trace()
+##        import pdb; pdb.set_trace()
         op.add_column(
             "t1", Column("c1", Integer, nullable=False, server_default="12")
         )
         context.assert_("ALTER TABLE t1 ADD c1 INTEGER NOT NULL DEFAULT 12 ")
 
-# class InformixSQLOpTest(TestBase):
-#     @config.requirements.comments_api
-#     def test_create_table_with_comment(self):
-#         context = op_fixture("informix")
-#         op.create_table(
-#             "t2",
-#             Column("c1", Integer, primary_key=True),
-#             comment="This is a table comment",
-#         )
-#         context.assert_contains("COMMENT='This is a table comment'")
-#
-#     @config.requirements.comments_api
-#     def test_create_table_with_column_comments(self):
-#         context = op_fixture("informix")
-#         op.create_table(
-#             "t2",
-#             Column("c1", Integer, primary_key=True, comment="c1 comment"),
-#             Column("c2", Integer, comment="c2 comment"),
-#             comment="This is a table comment",
-#         )
-#
-#         context.assert_(
-#             "CREATE TABLE t2 "
-#             "(c1 INTEGER NOT NULL COMMENT 'c1 comment' AUTO_INCREMENT, "
-#             # TODO: why is there no space at the end here? is that on the
-#             # SQLA side?
-#             "c2 INTEGER COMMENT 'c2 comment', PRIMARY KEY (c1))"
-#             "COMMENT='This is a table comment'"
-#         )
-#
-#     @config.requirements.comments_api
-#     def test_add_column_with_comment(self):
-#         context = op_fixture("mysql")
-#         op.add_column("t", Column("q", Integer, comment="This is a comment"))
-#         context.assert_(
-#             "ALTER TABLE t ADD COLUMN q INTEGER COMMENT 'This is a comment'"
-#         )
-#
-#     def test_rename_column(self):
-#         context = op_fixture("mysql")
-#         op.alter_column(
-#             "t1", "c1", new_column_name="c2", existing_type=Integer
-#         )
-#         context.assert_("ALTER TABLE t1 CHANGE c1 c2 INTEGER NULL")
-#
+class InformixSQLOpTest(TestBase):
+
+#########	NO INFORMIX SQL
+##     @config.requirements.comments_api
+##     def test_create_table_with_comment(self):
+##         context = op_fixture("informix")
+##         op.create_table(
+##             "t2",
+##             Column("c1", Integer, primary_key=True),
+##             comment="This is a table comment",
+##         )
+##         context.assert_contains("COMMENT='This is a table comment'")
+
+
+#########	NO INFORMIX SQL
+##
+##     @config.requirements.comments_api
+##     def test_create_table_with_column_comments(self):
+##         context = op_fixture("informix")
+##         op.create_table(
+##             "t2",
+##             Column("c1", Integer, primary_key=True, comment="c1 comment"),
+##             Column("c2", Integer, comment="c2 comment"),
+##             comment="This is a table comment",
+##         )
+##
+##         context.assert_(
+##             "CREATE TABLE t2 "
+##             "(c1 INTEGER NOT NULL COMMENT 'c1 comment' AUTO_INCREMENT, "
+##             # TODO: why is there no space at the end here? is that on the
+##             # SQLA side?
+##             "c2 INTEGER COMMENT 'c2 comment', PRIMARY KEY (c1))"
+##             "COMMENT='This is a table comment'"
+##         )
+##
+##     @config.requirements.comments_api
+##     def test_add_column_with_comment(self):
+##         context = op_fixture("informix")
+##         op.add_column("t", Column("q", Integer, comment="This is a comment"))
+##         context.assert_(
+##             "ALTER TABLE t ADD COLUMN q INTEGER COMMENT 'This is a comment'"
+##         )
+
+     def test_rename_column(self):
+         context = op_fixture("informix")
+         op.alter_column(
+             "t1", "c1", new_column_name="c2", existing_type=Integer
+         )
+         context.assert_("RENAME COLUMN t1.c1 TO c2")
+
+#########	NO INFORMIX SQL
 #     def test_rename_column_quotes_needed_one(self):
 #         context = op_fixture("mysql")
 #         op.alter_column(
@@ -102,6 +108,10 @@ class OpTest(TestBase):
 #             "`column two` INTEGER NULL"
 #         )
 #
+
+#########	NO INFORMIX SQL
+########	There 're two different sql commands: "rename column ...."  and "alter table ... modify .."
+
 #     def test_rename_column_serv_default(self):
 #         context = op_fixture("mysql")
 #         op.alter_column(
@@ -144,7 +154,7 @@ class OpTest(TestBase):
 #     def test_col_add_autoincrement(self):
 #         context = op_fixture("mysql")
 #         op.alter_column("t1", "c1", existing_type=Integer, autoincrement=True)
-#         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER NULL AUTO_INCREMENT")
+         context.assert_("alter table t1 modify c1 serial")
 #
 #     def test_col_remove_autoincrement(self):
 #         context = op_fixture("mysql")
@@ -155,7 +165,7 @@ class OpTest(TestBase):
 #             existing_autoincrement=True,
 #             autoincrement=False,
 #         )
-#         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER NULL")
+         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER")
 #
 #     def test_col_dont_remove_server_default(self):
 #         context = op_fixture("mysql")
@@ -172,7 +182,7 @@ class OpTest(TestBase):
 #     def test_alter_column_drop_default(self):
 #         context = op_fixture("mysql")
 #         op.alter_column("t", "c", existing_type=Integer, server_default=None)
-#         context.assert_("ALTER TABLE t ALTER COLUMN c DROP DEFAULT")
+         context.assert_("alter table t modify c integer")
 #
 #     def test_alter_column_remove_schematype(self):
 #         context = op_fixture("mysql")
@@ -189,12 +199,12 @@ class OpTest(TestBase):
 #         context = op_fixture("mysql")
 #         # notice we dont need the existing type on this one...
 #         op.alter_column("t", "c", server_default="1")
-#         context.assert_("ALTER TABLE t ALTER COLUMN c SET DEFAULT '1'")
+         context.assert_("alter table t modify c integer default 1")
 #
 #     def test_col_not_nullable(self):
 #         context = op_fixture("mysql")
 #         op.alter_column("t1", "c1", nullable=False, existing_type=Integer)
-#         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL")
+         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL")
 #
 #     def test_col_not_nullable_existing_serv_default(self):
 #         context = op_fixture("mysql")
@@ -206,21 +216,21 @@ class OpTest(TestBase):
 #             existing_server_default="5",
 #         )
 #         context.assert_(
-#             "ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL DEFAULT '5'"
+             "ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL DEFAULT 5"
 #         )
 #
 #     def test_col_nullable(self):
 #         context = op_fixture("mysql")
 #         op.alter_column("t1", "c1", nullable=True, existing_type=Integer)
-#         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER NULL")
+         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER")
 #
 #     def test_col_multi_alter(self):
 #         context = op_fixture("mysql")
 #         op.alter_column(
 #             "t1", "c1", nullable=False, server_default="q", type_=Integer
 #         )
-#         context.assert_(
-#             "ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL DEFAULT 'q'"
+         context.assert_(
+             "ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL DEFAULT 1"
 #         )
 #
 #     def test_alter_column_multi_alter_w_drop_default(self):
@@ -228,7 +238,7 @@ class OpTest(TestBase):
 #         op.alter_column(
 #             "t1", "c1", nullable=False, server_default=None, type_=Integer
 #         )
-#         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL")
+         context.assert_("ALTER TABLE t1 MODIFY c1 INTEGER NOT NULL")
 #
 #     def test_col_alter_type_required(self):
 #         op_fixture("mysql")
@@ -336,35 +346,35 @@ class OpTest(TestBase):
 #         op.drop_table_comment("t2", existing_comment="t2 table", schema="foo")
 #         context.assert_("ALTER TABLE foo.t2 COMMENT ''")
 #
-#     def test_drop_fk(self):
-#         context = op_fixture("mysql")
-#         op.drop_constraint("f1", "t1", "foreignkey")
-#         context.assert_("ALTER TABLE t1 DROP FOREIGN KEY f1")
+     def test_drop_fk(self):
+         context = op_fixture("mysql")
+         op.drop_constraint("f1", "t1", "foreignkey")
+         context.assert_("ALTER TABLE t1 DROP constraint f1")
 #
 #     def test_drop_fk_quoted(self):
 #         context = op_fixture("mysql")
 #         op.drop_constraint("MyFk", "MyTable", "foreignkey")
 #         context.assert_("ALTER TABLE `MyTable` DROP FOREIGN KEY `MyFk`")
 #
-#     def test_drop_constraint_primary(self):
-#         context = op_fixture("mysql")
-#         op.drop_constraint("primary", "t1", type_="primary")
-#         context.assert_("ALTER TABLE t1 DROP PRIMARY KEY")
+     def test_drop_constraint_primary(self):
+         context = op_fixture("mysql")
+#         op.drop_constraint("primary", "t1", type_="primary") we have to add constraint's name! key1, for example
+         context.assert_("ALTER TABLE t1 DROP constraint key1")
 #
-#     def test_drop_unique(self):
+     def test_drop_unique(self):
 #         context = op_fixture("mysql")
-#         op.drop_constraint("f1", "t1", "unique")
-#         context.assert_("ALTER TABLE t1 DROP INDEX f1")
+#         op.drop_constraint("f1", "t1", "unique") we need no table name!
+         context.assert_("DROP INDEX f1")
 #
 #     def test_drop_unique_quoted(self):
 #         context = op_fixture("mysql")
 #         op.drop_constraint("MyUnique", "MyTable", "unique")
 #         context.assert_("ALTER TABLE `MyTable` DROP INDEX `MyUnique`")
 #
-#     def test_drop_check(self):
-#         context = op_fixture("mysql")
-#         op.drop_constraint("f1", "t1", "check")
-#         context.assert_("ALTER TABLE t1 DROP CONSTRAINT f1")
+     def test_drop_check(self):
+         context = op_fixture("mysql")
+         op.drop_constraint("f1", "t1", "check")
+         context.assert_("ALTER TABLE t1 DROP CONSTRAINT f1")
 #
 #     def test_drop_check_quoted(self):
 #         context = op_fixture("mysql")
